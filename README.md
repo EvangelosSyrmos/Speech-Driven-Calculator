@@ -2,7 +2,7 @@
 Speech Calculator is a speech recognition driven Python calculator with Text-to-Speech implementation.
 
 ## Description
-This project was made to learn how to use voice recognition and text-to-speech library to create a calculator
+The purpose of this project was to learn how to use voice recognition and text-to-speech library to create a calculator
 ## Dependences
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the libraries needed.
