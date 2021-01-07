@@ -19,3 +19,5 @@ pipwin install pyaudio
 ```
 ## Project status
 Project 70% completed.
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
