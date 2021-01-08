@@ -11,16 +11,16 @@ class Calculator():
     """
     def __init__(self):
         self.sum = 0
-        self.voice_error = 'Sorry, can\'t understand you.'
+        self.voice_error = 'Can you repeat?'
         self.request_error = 'Something went wrong, try again.'
         self.greet_user = 'Hello, how can i help you?'
+        self.reset_message = 'Sum reseted.'
         self.assistant()
     
     def assistant(self):
         # Call the assistant to greet
         self.assistant_speak(self.greet_user)
-        self.greet_user = 0
-        time.sleep(0.5)
+        time.sleep(0.2)
         # Loop until input audio = (exit, bye)
         while True:
             action = self.assistant_listen()
@@ -38,11 +38,15 @@ class Calculator():
     def assistant_action(self, request):
         # If request is exit, program stops running
         if 'exit' in request: 
-            self.assistant_speak('GoodBye.')
+            self.assistant_speak('Bye.')
             exit()
         if 'close' in request: 
-            self.assistant_speak('GoodBye.')
+            self.assistant_speak('Bye.')
             exit()
+        # Reset the Sum 
+        if 'reset' in request:
+            self.sum = 0
+            self.assistant_speak(self.reset_message)
         if 'addition' in request:
             self.addition()
         elif 'subtract' in request:
@@ -63,8 +67,10 @@ class Calculator():
                 voice_data = r.recognize_google(audio)
             except sr.UnknownValueError:
                 self.assistant_speak(self.voice_error)
+                voice_data = 'error'
             except sr.RequestError:
                 self.assistant_speak(self.request_error)
+                voice_data = 'error'
         return voice_data
 
     def assistant_speak(self, audio_string):
@@ -86,16 +92,76 @@ class Calculator():
             pass
 
     def addition(self):
-        # Ask for the 1st & 2nd number
-        self.assistant_speak('What\'s the first number?')
-        temp1 = self.assistant_listen()
-        self.assistant_speak('What\'s the second number?')
-        temp2 = self.assistant_listen()
-        result = temp1 + temp2
-        self.assistant_speak(result)
+        self.assistant_speak('What do you want to add?')
+        data = self.assistant_listen()
+        # Loop while the voice has error
+        while data == 'error':
+            self.assistant_speak('Can you repeat?')
+            data = self.assistant_listen()
+        # Add the first number before the + ex. (1 + 2 + 3)
+        data = data.split()
+        added_first = True
+        for index, value in enumerate(data):
+            if value == '+' or value == 'plus':
+                if added_first:
+                    added_first = False
+                    self.sum += (int(data[index - 1]))
+                self.sum += (int(data[index + 1]))
+                print("The sum is:", self.sum)
+                self.assistant_speak(str(self.sum))
 
     def subtraction(self):
-        pass
+        # Ask if you want to subtract from the current sum
+        self.assistant_speak('Subtract from sum?')
+        data = self.assistant_listen()
+        while data == 'error':
+            self.assistant_speak('Can you repeat?')
+            data = self.assistant_listen()
+        data = data.split()
+
+        if 'yes' in data:
+            self.assistant_speak('How much to subtract?')
+            data = self.assistant_listen()
+            while data == 'error':
+                self.assistant_speak('Can you repeat?')
+                data = self.assistant_listen()
+            data = data.split()
+            # print(data)
+            # print(len(data))
+            if len(data) == 1:
+                '''
+                If the len(data)==1 then given number is already negative
+                so in order to subtract you have to add it
+                '''
+                self.sum += (int(data[0]))
+                print("The sum is:", self.sum)
+                self.assistant_speak(str(self.sum))
+            else:
+                for iter, item in enumerate(data):
+                    if item == '-' or item == 'minus':
+                        self.sum -= (int(data[iter + 1]))
+                    print("The sum is:", self.sum)
+                    self.assistant_speak(str(self.sum))
+        elif 'no' in data:
+            # If want to subtract with sum = 0
+            self.sum = 0
+            self.assistant_speak('What do you want to subtract?')
+            data = self.assistant_listen()
+            # Loop while the voice has error
+            while data == 'error':
+                self.assistant_speak('Can you repeat?')
+                data = self.assistant_listen()
+            # Add the first number before the + ex. (1 - 2 - 3)
+            data = data.split()
+            added_first = True
+            for iter, item in enumerate(data):
+                if item == '-' or item == 'minus':
+                    if added_first:
+                        added_first = False
+                        self.sum = (int(data[iter - 1]))
+                    self.sum -= (int(data[iter + 1]))
+                    print("The sum is:", self.sum)
+                    self.assistant_speak(str(self.sum))
 
     def multiplication(self):
         pass
