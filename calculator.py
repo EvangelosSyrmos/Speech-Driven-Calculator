@@ -16,7 +16,8 @@ class Calculator():
         self.greet_user = 'Hello, how can i help you?'
         self.reset_message = 'Sum reseted.'
         self.assistant()
-    
+
+
     def assistant(self):
         # Call the assistant to greet
         self.assistant_speak(self.greet_user)
@@ -34,7 +35,8 @@ class Calculator():
             DEBUG: Repeat the voice recording
             self.assistant_speak(action)
             '''
-    
+
+
     def assistant_action(self, request):
         # If request is exit, program stops running
         if 'exit' in request: 
@@ -43,6 +45,8 @@ class Calculator():
         if 'close' in request: 
             self.assistant_speak('Bye.')
             exit()
+        if 'tell me the total' in request:
+            self.assistant_speak('The sum is ' + str(self.sum))
         # Reset the Sum 
         if 'reset' in request:
             self.sum = 0
@@ -55,6 +59,7 @@ class Calculator():
             self.multiplication()
         elif 'divide' in request:
             self.division() 
+
 
     def assistant_listen(self):
         voice_data = []
@@ -72,6 +77,7 @@ class Calculator():
                 self.assistant_speak(self.request_error)
                 voice_data = 'error'
         return voice_data
+
 
     def assistant_speak(self, audio_string):
         try:
@@ -91,24 +97,48 @@ class Calculator():
         except AssertionError:
             pass
 
+
     def addition(self):
-        self.assistant_speak('What do you want to add?')
+        # Ask if you want to add to the current sum
+        self.assistant_speak('Add to the sum?')
         data = self.assistant_listen()
-        # Loop while the voice has error
         while data == 'error':
-            self.assistant_speak('Can you repeat?')
+            self.assistant_speak('Add to the sum?')
             data = self.assistant_listen()
-        # Add the first number before the + ex. (1 + 2 + 3)
         data = data.split()
-        added_first = True
-        for index, value in enumerate(data):
-            if value == '+' or value == 'plus':
-                if added_first:
-                    added_first = False
-                    self.sum += (int(data[index - 1]))
-                self.sum += (int(data[index + 1]))
-                print("The sum is:", self.sum)
-                self.assistant_speak(str(self.sum))
+
+        if 'yes' in data:
+            self.assistant_speak('How much to add?')
+            data = self.assistant_listen()
+            while data == 'error':
+                self.assistant_speak('Can you repeat?')
+                data = self.assistant_listen()
+            data = data.split()
+            if len(data) == 1:
+                self.sum += (int(data[0]))
+            else:
+                for iter, item in enumerate(data):
+                    if item == '+' or item == 'plus':
+                        self.sum += (int(data[iter + 1]))
+            self.assistant_speak('The sum is ' + str(self.sum))
+        elif 'no' in data:
+            # Reset the sum
+            self.sum = 0
+            self.assistant_speak('What do you want to add?')
+            data = self.assistant_listen()
+            while data == 'error':
+                self.assistant_speak('What do you want to add?')
+                data = self.assistant_listen()
+            data = data.split()
+            added_first = True
+            for iter, item in enumerate(data):
+                if item == '+' or item == 'plus':
+                    if added_first:
+                        added_first = False
+                        self.sum = (int(data[iter - 1]))
+                    self.sum += (int(data[iter + 1]))
+            self.assistant_speak('The sum is ' + str(self.sum))
+
 
     def subtraction(self):
         # Ask if you want to subtract from the current sum
@@ -134,14 +164,12 @@ class Calculator():
                 so in order to subtract you have to add it
                 '''
                 self.sum += (int(data[0]))
-                print("The sum is:", self.sum)
-                self.assistant_speak(str(self.sum))
             else:
                 for iter, item in enumerate(data):
                     if item == '-' or item == 'minus':
                         self.sum -= (int(data[iter + 1]))
-                    print("The sum is:", self.sum)
-                    self.assistant_speak(str(self.sum))
+            self.assistant_speak('The sum is ' + str(self.sum))
+
         elif 'no' in data:
             # If want to subtract with sum = 0
             self.sum = 0
@@ -160,11 +188,46 @@ class Calculator():
                         added_first = False
                         self.sum = (int(data[iter - 1]))
                     self.sum -= (int(data[iter + 1]))
-                    print("The sum is:", self.sum)
-                    self.assistant_speak(str(self.sum))
+            self.assistant_speak('The sum is ' + str(self.sum))
 
     def multiplication(self):
-        pass
+        # Ask if you want to subtract from the current sum
+        self.assistant_speak('Multiply the sum?')
+        data = self.assistant_listen()
+        while data == 'error':
+            self.assistant_speak('Can you repeat?')
+            data = self.assistant_listen()
+        data = data.split()
+
+        if 'yes' in data:
+            self.assistant_speak('How much to multiply?')
+            data = self.assistant_listen()
+            while data == 'error':
+                self.assistant_speak('Can you repeat?')
+                data = self.assistant_listen()
+            data = data.split()
+            # print('#####')
+            # print(data)
+            self.sum *= int(data[1])
+            self.assistant_speak('The sum is ' + str(self.sum))
+
+        elif 'no' in data:
+            self.sum = 0
+            self.assistant_speak('How much to multiply?')
+            data = self.assistant_listen()
+            while data == 'error':
+                self.assistant_speak('Can you repeat?')
+                data = self.assistant_listen()
+            data = data.split()
+            added_first = True
+            for iter, item in enumerate(data):
+                if item == '*' or item == 'times':
+                    if added_first:
+                        added_first = False
+                        self.sum = int(data[iter - 1])
+                    self.sum *= int(data[iter + 1])
+            self.assistant_speak('The sum is ' + str(self.sum))
+
 
     def division(self):
         pass
